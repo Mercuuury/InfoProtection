@@ -37,7 +37,9 @@ public class ReplaceSpaces {
         FileOutputStream outputStream = new FileOutputStream(outputFilePath);
         outputStream.write(bytes);
         outputStream.close();
-        System.out.println("закрыли тему");
+
+        encrypt(inputFilePath);
+        encrypt(outputFilePath);
     }
 
     public static byte[] insertBytes(byte[] original, byte[] insert, int index) {
@@ -50,5 +52,29 @@ public class ReplaceSpaces {
         System.arraycopy(original, index, result, index + insert.length, original.length - index);
 
         return result;
+    }
+
+    private static String encrypt(String filePath) {
+        try {
+            System.out.println(filePath);
+            ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "openssl dgst -sha1 " + filePath);
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line, result = "";
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                result = line.split("= ")[1];
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Error: " + exitCode);
+            }
+
+            return result;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return e.toString();
+        }
     }
 }

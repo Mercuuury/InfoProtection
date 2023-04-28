@@ -24,7 +24,8 @@ public class Main {
         byte[] hashBytesArray = hexStringToByteArray(hash); // Массив байтов хешкода
         String hashBytesBinary = ""; // Бинарное представление хешкода
         for (byte b : hashBytesArray) {
-            hashBytesBinary += String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
+            hashBytesBinary += String.format("%8s", Integer.toBinaryString(b & 0xFF))
+                    .replace(' ', '0');
         }
         char[] hashBitsArray = hashBytesBinary.toCharArray(); // Массив символов бинарного представления
 
@@ -40,14 +41,14 @@ public class Main {
         key = generateKey(BITS_TO_HIDE, 0, imageBytes.length);
 
         for (int pos = 0; pos < key.length; pos++) {
-            String imageByteBinary = String.format("%8s", Integer.toBinaryString(imageBytes[pos] & 0xFF)).replace(' ',
-                    '0'); // Записываем бинарное представление байта изображения
+            String imageByteBinary = String.format("%8s", Integer.toBinaryString(imageBytes[key[pos]] & 0xFF))
+                    .replace(' ', '0'); // Записываем бинарное представление байта изображения
             char[] imageByteBinaryArray = imageByteBinary.toCharArray(); // Переводим в массив символов
             imageByteBinaryArray[7] = hashBitsArray[pos]; // Заменяем последний бит
 
             String embedImageByteBinary = new String(imageByteBinaryArray); // Переводим измененный массив в строку
             byte newImageByte = (byte) Integer.parseInt(embedImageByteBinary, 2); // Переводим бинарную строку в байт
-            imageBytes[pos] = newImageByte; // Заменяем байт
+            imageBytes[key[pos]] = newImageByte; // Заменяем байт
         }
 
         // Запись в файл
@@ -67,18 +68,20 @@ public class Main {
         inputStream.close();
 
         String message = ""; // Строка для результата
-        for (int pos = 0; pos < key.length / 8; pos++) {
-            char[] charBitsArray = new char[8]; // Массив для извлеченных битов (для составления байта)
-            for (int j = 0; j < 8; j++) {
-                String imageByteBinary = String.format("%8s", Integer.toBinaryString(imageBytes[pos * 8 + j] & 0xFF))
-                        .replace(' ', '0'); // Извлекаем байт и получаем бинарное представление
-                char[] imageByteBinaryArray = imageByteBinary.toCharArray(); // Переводим в массив символов
-                charBitsArray[j] = imageByteBinaryArray[7]; // Извлекаем последний бит
+        char[] charBitsArray = new char[8]; // Массив для извлеченных битов (для составления байта)
+        for (int pos = 0; pos <= key.length; pos++) {
+            if (pos % 8 == 0 && pos != 0) {
+                String extractedByteBinary = new String(charBitsArray); // Получаем бинарную строку из массива битов
+                byte extractedByte = (byte) Integer.parseInt(extractedByteBinary, 2); // Переводим бинарную строку в байт
+                message += byteArrayToHexString(new byte[] { extractedByte }); // Дописываем представление байта в 16сс
+                charBitsArray = new char[8];
+                if (pos == 160) break;
             }
-            String extractedByteBinary = new String(charBitsArray); // Получаем бинарную строку из массива битов
-            byte extractedByte = (byte) Integer.parseInt(extractedByteBinary, 2); // Переводим бинарную строку в байт
-
-            message += byteArrayToHexString(new byte[] { extractedByte }); // Дописываем представление байта в 16сс
+           
+            String imageByteBinary = String.format("%8s", Integer.toBinaryString(imageBytes[key[pos]] & 0xFF))
+                    .replace(' ', '0'); // Извлекаем байт и получаем бинарное представление
+            char[] imageByteBinaryArray = imageByteBinary.toCharArray(); // Переводим в массив символов
+            charBitsArray[pos % 8] = imageByteBinaryArray[7]; // Извлекаем последний бит
         }
 
         return message;

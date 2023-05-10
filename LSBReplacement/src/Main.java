@@ -73,7 +73,7 @@ public class Main {
             if (pos % 8 == 0 && pos != 0) {
                 String extractedByteBinary = new String(charBitsArray); // Получаем бинарную строку из массива битов
                 byte extractedByte = (byte) Integer.parseInt(extractedByteBinary, 2); // Переводим бинарную строку в байт
-                message += byteArrayToHexString(new byte[] { extractedByte }); // Дописываем представление байта в 16сс
+                message += byteArrayToHexHexString(new byte[] { extractedByte }); // Дописываем представление байта в 16сс
                 charBitsArray = new char[8];
                 if (pos == 160) break;
             }

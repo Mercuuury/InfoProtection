@@ -1,0 +1,16 @@
+openssl genpkey -algorithm ED448 -out root_keypair.pem
+openssl req -new -subj "/CN=ROOT CA" -addext "basicConstraints=critical,CA:TRUE" -key root_keypair.pem -out root_csr.pem
+openssl req -in root_csr.pem -noout -text
+openssl x509 -req -in root_csr.pem -signkey root_keypair.pem -days 3650 -out root_cert.pem
+openssl x509 -in root_cert.pem -noout -text
+openssl genpkey -algorithm ED448 -out intermediate_keypair.pem
+openssl req -new -subj "/CN=INTERMEDIATE CA" -addext "basicConstraints=critical,CA:TRUE" -key intermediate_keypair.pem -out intermediate_csr.pem
+openssl x509 -req -in intermediate_csr.pem -CA root_cert.pem -CAkey root_keypair.pem -extfile extensions.cnf -extensions nonLeaf -days 3650 -out intermediate_cert.pem
+openssl x509 -in intermediate_cert.pem -noout -text
+openssl genpkey -algorithm ED448 -out leaf_keypair.pem
+openssl req -new -subj "/CN=LEAF" -addext "basicConstraints=critical,CA:FALSE" -key leaf_keypair.pem -out leaf_csr.pem
+openssl x509 -req -in leaf_csr.pem -CA intermediate_cert.pem -CAkey intermediate_keypair.pem -extfile extensions.cnf -extensions Leaf -days 3650 -out leaf_cert.pem
+openssl x509 -in leaf_cert.pem -noout -text
+openssl verify -verbose -show_chain -trusted root_cert.pem -untrusted intermediate_cert.pem leaf_cert.pem
+
+Valid: OpenSSL 1.1.1s 1 Nov 2022, OpenSSL 1.1.1t 7 Feb 2023

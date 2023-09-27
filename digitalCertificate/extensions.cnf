@@ -1,0 +1,5 @@
+[nonLeaf]
+basicConstraints=critical,CA:TRUE
+
+[Leaf]
+basicConstraints=CA:FALSE

@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.util.Scanner;
 
 public class EllipticCurve {
     public BigInteger a; // Коэффициент a
@@ -59,7 +60,11 @@ public class EllipticCurve {
                 // m = (3 * (x_p1)^2 + a) / (2 * y_p1)
                 BigInteger nom = p1.x.multiply(p1.x).multiply(BigInteger.valueOf(3)).add(a); // Числитель
                 BigInteger den = p1.y.add(p1.y); // Знаменатель
-                m = nom.multiply(den.modInverse(p));
+                if (den.equals(BigInteger.ZERO)) {
+                    m = nom.multiply(BigInteger.ZERO);
+                } else {
+                    m = nom.multiply(den.modInverse(p));
+                }
             } else {
                 return ECPoint.INFINITY;
             }
@@ -114,25 +119,40 @@ public class EllipticCurve {
         Grid frame = new Grid(17, solutions);
 
         ECPoint g2 = curve.multiply(curve.g, BigInteger.valueOf(2));
+        ECPoint g3 = curve.multiply(curve.g, BigInteger.valueOf(3));
         ECPoint g4 = curve.multiply(curve.g, BigInteger.valueOf(4));
+        ECPoint g5 = curve.multiply(curve.g, BigInteger.valueOf(5));
+        ECPoint g6 = curve.multiply(curve.g, BigInteger.valueOf(6));
+        ECPoint g7 = curve.multiply(curve.g, BigInteger.valueOf(7));
+        ECPoint g8 = curve.multiply(curve.g, BigInteger.valueOf(8));
         System.out.println("G:" + curve.g.toString());
         System.out.println("2G:" + g2.toString());
+        System.out.println("3G:" + g3.toString());
         System.out.println("4G:" + g4.toString());
+        System.out.println("5G:" + g5.toString());
+        System.out.println("6G:" + g6.toString());
+        System.out.println("7G:" + g7.toString());
+        System.out.println("8G:" + g8.toString());
         frame.setPostOpPoint(curve.g, "G");
         frame.setPostOpPoint(g2, "2G");
+        frame.setPostOpPoint(g3, "3G");
         frame.setPostOpPoint(g4, "4G");
+        frame.setPostOpPoint(g5, "5G");
+        frame.setPostOpPoint(g6, "6G");
+        frame.setPostOpPoint(g7, "7G");
+        frame.setPostOpPoint(g8, "8G");
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        System.out.print("Для продолжения введите что-нибудь в консоль > ");
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+
         frame.clearPostOpPoints();
 
         ECPoint p = new ECPoint(2, 10);
         ECPoint q = new ECPoint(8, 14);
         ECPoint r = curve.add(p, q);
-        System.out.println("P:" + p.toString());
+        System.out.println("\nP:" + p.toString());
         System.out.println("Q:" + q.toString());
         System.out.println("R:" + r.toString());
         frame.setPostOpPoint(p, "P");
